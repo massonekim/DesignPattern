@@ -3,6 +3,8 @@
 1. [Singleton](#1.-Singleton)
 2. [Abstract Factory](#2.-Abstract-Factory)
 3. [Factory Method](#3.-Factory-Method)
+4. [Builder](#4.-Builder)
+5. [Prototype](#5.-Prototype)
 ---
 
 ## 1. Singleton
@@ -338,4 +340,134 @@
 | 포커스                                              | - 클래스(Abstract Factory) 레벨에서 포커스를 맞춤<br> - 각 Product들이 다른 클래스와 함께 사용될 때의 제약사항을 강제할 수 있다. | - 메서드(Factory Method) 레벨에서 포커스를 맞춤<br> - 클라이언트의 ConcreteProduct 인스턴스 생성 및 구성에 대한 책임을 덜어줌               |
 | 메서드와 오브젝트                                   | - Object                                                                                                                                                                                          | - 단일 Method                                                                                                                               |
 | Inhritance(상속), Composition(구성)                 | - 지역 레퍼런스를 두어 , 외부로부터 Factory 객체를 DI 받아서 위임.                                                                                                                                | - 상속을 사용하여 객체의 인스턴스 생성에 대해서는 서브클래스에 의존<br> - 지역 레퍼런스 없이 바로 하위 클래스의 함수를 호출하여 객체를 만듦 |
+---
+
+## 4. Builder
+
+### 사용 목적 & 용도
+
+* 객체의 생성 단계들을 캡슐화하여 객체의 생성과정과 표현 방법을 분리함으로써, 객체의 생성을 유연하게 해주는 패턴
+
+### 클래스 다이어그램
+
+![Builder](https://user-images.githubusercontent.com/95995592/147406313-141cb09c-fc3b-41af-acf0-b7290b50c9c0.PNG)
+
+### 구현
+* Builder : 인스턴스 생성을 위한 인터페이스(API) 선언
+  ```java
+  public abstract class Builder {
+    protected House house;
+    
+    public void createHouse() {
+      house = new House();
+    }
+    
+    public abstract void buildWalls();
+    public abstract void buildDoors();
+    public abstract void buildRoof();
+    public abstract void buildWindows();
+    public abstract House getHouse();
+  }
+ 
+  
+  ```
+* Product : 만들어질 객체의 속성과 기능
+  ```java
+  public class House {
+    private String roof;
+    private String doors;
+    private String windows;
+    private String walls;
+    
+    public void setRoof(String roof) {
+      this.roof = roof;
+    }
+    
+    public void setDoors(String doors) {
+      this.doors = doors;
+    }
+    
+    public void setWindows(String windows) {
+      this.windows = windows;
+    }
+    
+    public void setWalls(String walls) {
+      this.walls = walls;
+    }
+    
+    @Override
+    public String toString() {
+      return "이집은 [" + roof + " 지붕과, " + walls + " 벽과, " + windows + " 창문과, " + doors  + " 문으로 지어진 집입니다.]";
+    }
+  }
+  
+  ```
+  
+* ConcreteBuilder : Builder 인터페이스를 구현하는 역할
+  ```java
+  public class ConcreteHouseBuilder extends Builder {
+    @Override
+    public void buildWalls() {
+      house.setWalls("콘크리트");
+    }
+    
+    @Override
+    public void buildDoors() {
+      house.setDoors("철제");
+    }
+    
+    @Override
+    public void buildRoof() {
+      house.setRoof("빨간");
+    }
+    
+    @Override
+    public void buildWindows() {
+      house.setWindows("일반");
+    }
+    
+    @Override
+    public House getHouse() {
+      return house;
+    }
+   
+  }
+  ```
+  
+* Director : Builder 인터페이스를 사용해 객체를 생성하고 반환
+  ```java
+  public class Director {
+    private Builder builder;
+    
+    public Director(Builder builder) {
+      this.builder = builder;
+    }
+    
+    public void build() {
+      builder.createHouse();
+      builder.buildWalls();
+      builder.buildWindows();
+      builder.buildDoors();
+      builder.buildRoof();
+    }
+   
+    public House getHouse() {
+      return builder.getHouse();
+    }
+  }
+  ```  
+  
+* Main
+  ```java
+  public class Main {
+    public static void main(String args[]) {
+      Builder concreteHouseBuilder  = new ConcreteHouseBuilder();
+      Director director = new Director(concreteHouseBuilder);
+      director.build();
+      
+      House house = director.getHouse();
+      System.out.println(house);
+    }
+  }
+  ```  
 ---
