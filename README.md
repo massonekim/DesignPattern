@@ -471,3 +471,121 @@
   }
   ```  
 ---
+
+## 5. Prototype
+
+### 사용 목적 & 용도
+
+* 생성할 객체들의 타입이 프로토타입인 인스턴스로부터 결정되도록 하며, 인스턴스는 새 객체를 만들기 위해 자신을 복제
+
+### 클래스 다이어그램
+
+![Prototype](https://user-images.githubusercontent.com/95995592/147407792-13f7a1c7-a9ef-4b37-9385-40a3077aa27d.PNG)
+
+### 구현
+* Prototype : 인스턴스를 복사하여 새로운 인스턴스를 만들기 위한 메소드를 결정
+  ```java
+  public abstract class Shape implements Cloneable {
+    protected Type type;
+    
+    abstract void draw();
+    
+    @Override
+    public Object clone() throws CloneNotSupplortedException {
+      Object clone = null;
+      
+      try {
+        clone = supper.clone();
+      } catch (RuntimeException e) {
+        e.printStackTrace();
+      } catch (CloneNotSupplortedException e) {
+        e.printStackTrace();
+      }
+      return clone;
+    }
+  }
+ 
+  
+  ```
+* ConcretePrototype : 인스턴스를 복사해서 새로운 인스턴스를 만드는 메소드 구현
+  ```java
+  public class Circle extends Shape {
+    public Circle() {
+      this.type = Type.CIRCLE;
+    }
+    
+    @Override()
+    void draw() {
+      System.out.println("[Circle] 입니다.");
+    }
+    
+  }
+  
+  public class Rectangle extends Shape {
+    public Rectangle() {
+      this.type = Type.RECTANGLE;
+    }
+    
+    @Override()
+    void draw() {
+      System.out.println("[Rectangle] 입니다.");
+    }
+    
+  }
+  
+  public class Triangle extends Shape {
+    public Triangle() {
+      this.type = Type.TRIANGLE;
+    }
+    
+    @Override()
+    void draw() {
+      System.out.println("[Triangle] 입니다.");
+    }
+    
+  }
+  
+  ```
+  
+* Client : 인스턴스 복사 메소드를 사용해서 새로운 인스턴스를 만듬
+  ```java
+  public class ShapeStore {
+    private static Map<Type, Shape> shapeMap = new HashMap<Type, Shape>();
+    
+    public void registerShape() {
+      Rectangle rec = new Rectangle();
+      Circle cir = new Circle();
+      Triangle tri = new Triangle();
+      
+      shapeMap.put(rec.type,rec);
+      shapeMap.put(cir.type,cir);
+      shapeMap.put(tri.type,tri);
+    }
+    
+    public Shape getShape(Type type) {
+      return (Shape)shapeMap.get(type).clone();
+    }
+  }
+  ```
+  
+* Main
+  ```java
+  public class Main {
+    public static void main(String args[]) {
+      ShapeStore shapeStore = new ShapeStore();
+      shapeStore.registerShape();
+      
+      Circle cir1 = (Circle)shapeStore.getShape(Type.CIRCLE);
+      cir1.draw();
+      Circle cir2 = (Circle)shapeStore.getShape(Type.CIRCLE);
+      cir2.draw();
+      
+      Rectangle rec1 = (Rectangle)shapeStore.getShape(Type.RECTANGLE);
+      rec1.draw();
+      
+      Triangle tri1 = (Triangle)shapeStore.getShape(Type.TRIANGLE);
+      tri1.draw();
+    }
+  }
+  ```  
+---
