@@ -672,4 +672,117 @@
     }
   }
   ```  
+
+
+---
+## 7. Bridge
+
+### 사용 목적 & 용도
+
+* 추상화를 구현으로부터 분리하여 각각 독립적으로 변화할 수 있도록 하는 패턴
+
+### 클래스 다이어그램
+
+![Bridge](https://user-images.githubusercontent.com/95995592/147858046-c9430064-d785-4b3f-812b-39192ed06f18.PNG)
+
+### 구현
+* Abstraction : 구현 부분에 해당하는 클래스를 인스턴스를 가지고 해당 인스턴스를 통해 구현부분의 메서드를 호출
+  ```java
+  public abstract class Shape {
+      private  Drawing drawing
+      
+      protected  Shape(Drawing drawing) {
+          this.drawing = drawing;
+      }
+      
+      public abstract void draw();
+      public void drawLine(int x, int y) {
+          drawing.drawLine(x,y);
+      }
+      
+      public void fill() {
+          drawing.fill();
+      }
+  }  
   
+  ```
+  
+* RefinedAbstraction : 기능 계층에서 새로운 부분을 확장한 클래스
+  ```java
+  public class Rectangle extends  Shape {
+      protected Rectangle(Drawing drawing) {
+          super(drawing);
+      }
+      
+      @Override
+      public void draw() {
+          System.out.println("Rect draw extend");
+      }
+  } 
+  
+  public class Circle extends  Shape {
+      protected Circle(Drawing drawing) {
+          super(drawing);
+      }
+      
+      @Override
+      public void draw() {
+          System.out.println("Circle draw extend");
+      }
+  } 
+  
+  ```
+  
+* Implementor : 구현 클래스를 위한 인터페이스를 정의한다.
+  ```java
+  public interface Drawing {
+      public void drawLine(int x, int y);
+      public void fill();
+  }
+  
+  ```
+  
+* ConcreteImplementor : Implementor 인터페이스를 구현 즉, 실제 기능을 구현한다.
+  ```java
+  public class RectDrawing implements Drawing {
+      @Override
+      public void drawLine(int x, int y) {
+          System.out.println("Rect Draw line from " +  x + " to " + y);
+      }
+      
+      @Override
+      public void fill() {
+          System.out.println("Rect Fill");
+      }
+  }
+  
+  public class CircleDrawing implements Drawing {
+      @Override
+      public void drawLine(int x, int y) {
+          System.out.println("Circle Draw line from " +  x + " to " + y);
+      }
+      
+      @Override
+      public void fill() {
+          System.out.println("Circle Fill");
+      }
+  }
+  ```
+  
+* Main
+  ```java
+  public class Main {
+    public static void main(String args[]) {
+      Shape rectangle = new Rectangle(new RectDrawing());
+      Shape circle = new Circle(new CircleDrawing());
+      
+      rectangle.drawLine(1,2);
+      rectangle.fill();
+      rectangle.draw();
+      
+      circle.drawLine(3,4);
+      circle.fill();
+      circle.draw();
+    }
+  }
+  ```  
