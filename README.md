@@ -5,6 +5,8 @@
 3. [Factory Method](#3.-Factory-Method)
 4. [Builder](#4.-Builder)
 5. [Prototype](#5.-Prototype)
+6. [Adapter](#6.-Adapter)
+7. [Bridge](#7.-Bridge)
 ---
 
 ## 1. Singleton
@@ -589,3 +591,85 @@
   }
   ```  
 ---
+## 6. Adapter
+
+### 사용 목적 & 용도
+
+* 클라이언트가 원하는 인터페이스를 제공하기 위해서 클래스의 형태를 변형하는 것으로, 서로 다른 인터페이스를 연결하는 것
+
+### 클래스 다이어그램
+
+![Adapter](https://user-images.githubusercontent.com/95995592/147857296-2f29360e-0acf-426d-9595-4b6db6a2dfe3.PNG)
+
+### 구현
+* Adaptee
+  ```java
+  public interface MediaPlayer {
+      void play(String filename);
+  }  
+  
+  public class MP3 implements MediaPlayer {
+      @Override
+      public void play(String filename) {
+          System.out.println("Playing MP3  File "  + filename);
+      }
+  }
+  ```
+  
+* Target 
+  ```java
+  public interface MediaPackage {
+      void playFile(String filename);
+  } 
+  
+  ```
+  
+* Client
+  ```java
+  public class MP4 implements MediaPackage {
+      @Override
+      public void playFile(String filename) {
+          System.out.println("Playing MP4  File "  + filename);
+      }
+  }
+  
+  public class MKV implements MediaPackage {
+      @Override
+      public void playFile(String filename) {
+          System.out.println("Playing MKV  File "  + filename);
+      }
+  }
+  ```
+  
+* Adapter
+  ```java
+  public class FormatAdapter implements MediaPlayer {
+      private MediaPackage media;
+      public FormatAdapter(MediaPackage m) {
+          media = m;
+      }
+      
+      @Override
+      public void play(Strig filename) {
+          System.out.print("Using Adapter --> ");
+          media.playFile(filename);
+      }
+  }
+  ```
+  
+* Main
+  ```java
+  public class Main {
+    public static void main(String args[]) {
+      MediaPlayer player = new MP3();
+      player.play("file.mp3");
+      
+      player = new FormatAdapter(new MP4());
+      player.play("file.mp4");
+      
+      player = new FormatAdapter(new MKV());
+      player.play("file.mkv");
+    }
+  }
+  ```  
+  
