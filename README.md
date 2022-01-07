@@ -7,6 +7,7 @@
 5. [Prototype](#5.-Prototype)
 6. [Adapter](#6.-Adapter)
 7. [Bridge](#7.-Bridge)
+8. [Composite](#8.-Composite)
 ---
 
 ## 1. Singleton
@@ -786,3 +787,91 @@
     }
   }
   ```  
+  
+---
+## 7. Composite
+
+### 사용 목적 & 용도
+
+* 클라이언트가 복합 객체(Group of Object)나 단일 객체(Object)를 동일하게 취급하기 위한 패턴
+* 트리 구조로 작성하여, 전체-부분(Whole-Part) 관계를 표현
+
+### 클래스 다이어그램
+
+![Composite](https://user-images.githubusercontent.com/95995592/148478784-75c6727d-c7e0-431b-aa8a-c17f1a7b1fed.PNG)
+
+### 구현
+* Component : 모든 Component들을 위한 추상화된 개념으로써, Leaf와, Composite Class의 공통 Interface
+  ```java
+  public interface Graphic {
+      public void print();
+  }  
+  
+  ```
+  
+* Leaf : Component Interface를 구현한 구체 클래스, Composite 객체의 부분으로 설정
+  ```java
+  public class Rectangle implements Graphic {
+      
+      public void print() {
+          System.out.println("Rectangle");
+      }
+  } 
+  
+  public class Circle implements Graphic {
+  
+      public void print() {
+          System.out.println("Circle");
+      }
+  } 
+  
+  ```
+  
+* Composite : 복수 개의 Component를 갖는 전체 클래스
+  ```java
+  public class CompositeGraphic {
+      private List<Graphic> childGraphics = new ArrayList<Graphic>();
+      
+      public void print() {
+          for(Graphic graphic : childGraphics) {
+              graphic.print();
+          }
+      }
+      
+      public void add(Graphic graphic) {
+          childGraphics.add(graphic);
+      }
+      
+      public void remove(Graphic graphic) {
+          childGraphics.remove(graphic);
+      }
+  }
+  
+  ```
+  
+* Main
+  ```java
+  public class Main {
+    public static void main(String args[]) {
+      Rectangle retangle1 = new Rectangle();
+      Rectangle retangle2 = new Rectangle();
+      Circle circle1 = new Circle();
+      Circle circle2 = new Circle();
+      
+      CompositeGraphic graphic = new CompositeGraphic();
+      CompositeGraphic graphic1 = new CompositeGraphic();
+      CompositeGraphic graphic2 = new CompositeGraphic();
+      
+      graphic1.add(rectangle1);
+      graphic1.add(rectangle2);
+      
+      graphic2.add(circle1);
+      graphic2.add(circle2);
+      
+      graphic.add(graphic1);
+      graphic.add(graphic2);
+      
+      graphic.print();
+    }
+  }
+  ```    
