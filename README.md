@@ -8,6 +8,7 @@
 6. [Adapter](#6.-Adapter)
 7. [Bridge](#7.-Bridge)
 8. [Composite](#8.-Composite)
+9. [Decorator](#9.-Decorator)
 ---
 
 ## 1. Singleton
@@ -789,7 +790,7 @@
   ```  
   
 ---
-## 7. Composite
+## 8. Composite
 
 ### 사용 목적 & 용도
 
@@ -872,6 +873,114 @@
       graphic.add(graphic2);
       
       graphic.print();
+    }
+  }
+  ```    
+
+---
+## 9. Decorator
+
+### 사용 목적 & 용도
+
+* 객체의 결합을 통해 기능을 동적으로 유연하게 확장할 수 있게 해주는 패턴
+* 기본 기능에 추가할 수 있는 기능의 종류가 많은 경우, 각 추가 기능을 Decorator Class로 정의한 후 필요한 Decorator 객체를 조합
+
+### 클래스 다이어그램
+
+![Decorator](https://user-images.githubusercontent.com/95995592/148482280-91100e63-fd56-4853-99e6-128845414d99.PNG)
+
+### 구현
+* Component : 기본 기능(ConcreteComponent), 추가 기능(Decorator)의 공통 기능을 정의, 클라이언트는 Component를 통해 실제 객체를 사용
+  ```java
+  public abstract class Display {
+      public abstract void draw();
+  }  
+  
+  ```
+  
+* ConcreteComponent : 기본 기능을 구현하는 클래스
+  ```java
+  public class RoadDisplay extends Display {
+      
+      @Override
+      public void draw() {
+          System.out.println("기본 도로 표시");
+      }
+  } 
+  
+  ```
+  
+* Decorator : 다수의 구체적인 Decorator의 공통 기능 제공
+  ```java
+  public abstract class DisplayDecorator extends Display {
+      private Display decoratedDisplay;
+      
+      // 합성 관계를 통해 RoadDisplay 객체에 대한 참조
+      public DisplayDecorator(Display decoratedDisplay) {
+          this.decoratedDisplay = decoratedDisplay;
+      }
+      
+      @Override
+      public void draw() {
+          decoratedDisplay.draw();
+      }
+  }
+  
+  ```
+  
+* ConcreteDecorator
+  - Decorator의 하위 클래스로 기본 기능에 추가되는 개별적인 기능
+  - Concretecomponent 객체에 대한 참조는 Decorator 에서 Component로의 합성관계를 통해 표현
+  ```java
+  public class LaneDecorator extends DisplayDecorator {
+      public LaneDecorator(Display decoratedDisplay) {
+          super(decoratedDisplay);
+      }
+      
+      @Override
+      public void draw() {
+          super.draw();
+          drawLane();
+      }
+      
+      private void drawLane() {
+          System.out.println("\t차선 표시");
+      }
+  }
+  
+  public class TrafficDecorator extends DisplayDecorator {
+      public TrafficDecorator(Display decoratedDisplay) {
+          super(decoratedDisplay);
+      }
+      
+      @Override
+      public void draw() {
+          super.draw();
+          drawTraffic();
+      }
+      
+      private void drawTraffic() {
+          System.out.println("\t교통량 표시");
+      }
+  }
+  
+  ```
+  
+* Client
+  ```java
+  public class Client {
+    public static void main(String args[]) {
+      Display road = new RoadDisplay();
+      road.draw();
+      
+      Display roadWithLane = new LaneDecorator(new RoadDisplay());
+      roadWithlane.draw();
+      
+      Display roadWithTraffic = new TrafficDecorator(new RoadDisplay());
+      roadWithTraffic.draw();
+      
+      Display roadWithLaneAndTraffic = new TrafficDecorator(new LaneDecorator(new RoadDisplay()));
+      roadWithLaneAndTraffic.draw();
     }
   }
   ```    
