@@ -9,6 +9,7 @@
 7. [Bridge](#7.-Bridge)
 8. [Composite](#8.-Composite)
 9. [Decorator](#9.-Decorator)
+10. [Facade](#10.-Facade)
 ---
 
 ## 1. Singleton
@@ -984,3 +985,107 @@
     }
   }
   ```    
+---
+## 10. Facade
+
+### 사용 목적 & 용도
+
+* 어떤 서브시스템의 일련의 인터페이스에 대한 통합된 인터페이스를 제공
+* 복잡한 소프트웨어 바깥쪽의 코드가 라이브러리 안쪽 코드에 의존하는 일을 감소시켜 주고, 복잡한 소프트웨어를 사용할 수 있게 간단한 인터페이스 제공
+
+
+### 클래스 다이어그램
+
+![Facade](https://user-images.githubusercontent.com/95995592/149654632-e85b5917-e950-409b-9ed2-91f500756b5f.PNG)
+
+### 구현
+* Subsystem
+  * Subsystem 기능 구현
+  * Facade 객체에서 전달받은 요청 처리
+  * 서비 시스템 클래스들은 Facade 객체의 존재를 모른다.
+  
+  ```java
+  public class Remote_Control {
+      public void Turn_On() {
+          System.out.println("TV를 켜다");
+      }
+      
+      public void Turn_Off() {
+          System.out.println("TV를 끄다");
+      }
+  }  
+  
+  public class Movie {
+      public String name="";
+      
+      public Movie(String name) {
+          this.name = name;
+      }
+      
+      public void Search_Movie() {
+          System.out.println(name+" 영화를 찾다");
+      }
+      
+      public void Charge_Movie() {
+          System.out.println("영화를 결제하다");
+      }
+      
+      public void Play_Movie() {
+          System.out.println("영화를 재생하다");
+      }
+  }
+  
+  public class Beverage {
+      private String name="";
+      
+      public Beverage(String name) {
+          this.name = name;
+      }
+      
+      public void Prepare() {
+          System.out.println(name+" 음료 준비 완료 ");
+      }
+  }
+  
+  ```
+  
+* Facade
+  * 클라이언트의 요청을 적절한 Subsystem에게 전달
+  * 어떤 Subsyste 클래스가 클라이언트의 요청에 응답해야 하는지 알고 있다.
+  ```java
+  public class Facade {
+      
+      private String beverage_Name = "";
+      private STring movie_Name = "";
+      
+      public Facade(String beverage,String movie) {
+          this.beverage_Name = beverage;
+          this.movie_Name = movie;
+      }
+      
+      public void View_Movie() {
+          Beverage beverage =  new Beverage(beverage_Name);
+          Movie movie = new Movie(movie_Name);
+          Remote_Control remote = new Remote_Control();
+          
+          beverage.Prepare();
+          remotet.Trun_On();
+          movie.Search_Movie();
+          movie.Charge_Movie();
+          movie.Play_Movie();
+      }
+  } 
+  
+  ```
+  
+* Clienet : 서브 시스템 객체를 직접 호출하는 대신 Facade를 사용
+  ```java
+  public class Client {
+      public void view() {
+          Facade facade = new Facade("콜라","어벤저스");
+          facade.View_Movie();
+      }
+  }
+  
+  ```
+  
