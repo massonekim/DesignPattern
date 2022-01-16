@@ -10,6 +10,7 @@
 8. [Composite](#8.-Composite)
 9. [Decorator](#9.-Decorator)
 10. [Facade](#10.-Facade)
+11. [Flyweight](#11.-Flyweight)
 ---
 
 ## 1. Singleton
@@ -1089,3 +1090,105 @@
   
   ```
   
+  ---
+## 11. Flyweight
+
+### 사용 목적 & 용도
+
+* 하나의 인스턴스로 여러 개의 "가상 인스턴스"를 제공할 때 사용하는 패턴
+* 공유를 통하여 대량의 객체들을 효과적으로 지원하는 방법
+* 다수의 유사 객체를 생성하거나 조종할 대, new 연산자를 통한 메모리 낭비를 줄일 수 있다.
+
+
+### 클래스 다이어그램
+
+![Flyweight](https://user-images.githubusercontent.com/95995592/149656243-6f689d58-55ea-4179-a264-96575293ad02.PNG)
+
+### 구현
+* FlyweightFactory
+  * Flyweight 객체를 만들고 관리
+  * Flyweight의 공유 정보가 올바르게 공유되도록 한다.
+  * 클라이언트가 Flyweight객체를 요청하면 팩토리가 이전에 만들어 놓은 동일한 Flyweight 객체가 있는지 찾아보고 없으면 새로 생성
+  
+  ```java
+  public class ShapeFactory {
+      private static finale HashMap<String, Circle> circleMap = HashMap<>();
+            
+      public static Shape getCircle(String color) {
+          Circle circle = (Circle)circleMap.get(color);
+        
+          if(circle == null) {
+              circle = new Circle(color);
+              circleMap.put(color,circle);
+          }
+          return circle;
+      }
+    }  
+  
+  ```
+  
+* Flyweight
+  * 공유할 수 있는 정보를 갖는 Flyweight 객체 정의
+  
+  ```java
+  public interface Shape {
+      
+      public void draw();
+  } 
+  
+  ```
+  
+* Concrete Flyweight
+  * Flyweight 인터페이스를 구현하고, 공유 상태에 대한 저장공간 확보
+  * 여기에 저장하는 상태들은 intrinsic state(고유상태)
+  ```java
+  public class Circle implements Shape {
+  
+      private int x;
+      private int y;
+      private int radius;
+      
+      public Circle(String color) {
+          this.color = color;
+      }
+      
+      public void setColor(String color) {
+          this.color = color;
+      }
+      
+      public void setX(int x) {
+          this.x = x;
+      }
+      
+      public void setY(int y) {
+          this.y = y;
+      }
+      
+      public void setRadius(int radius) {
+          this.radius = radius;
+      }
+      
+      @Override
+      public void draw() {
+          System.out.println("Circle [color=" + color + ", x=" + x + ", y= " + y+ ", radius =" + radius "]");
+      }
+  }
+  
+* Client
+  * Flyweight에 대한 참조 유지
+  * Flyweight 객체 각각의 상태를 처리하거나 저장
+  ```java
+  public class Client {
+      public static void main(String[] args) {
+          String[] colors = {"Red","Green","Blue","Yellow"};
+          
+          for(int i =0;i<10;i++){
+              Circle circle = (Circle)ShapeFactory.getCircle(colors[(int)(Math.random()*4)]);
+              circle.setX((int)(Math.random()*100));
+              circle.setY((int)(Math.random()*10));
+              circle.draw();
+          }
+      }
+  }
+  
+  ```
