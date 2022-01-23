@@ -11,6 +11,7 @@
 9. [Decorator](#9.-Decorator)
 10. [Facade](#10.-Facade)
 11. [Flyweight](#11.-Flyweight)
+12. [Proxy](#12.-Proxy)
 ---
 
 ## 1. Singleton
@@ -1090,7 +1091,7 @@
   
   ```
   
-  ---
+---
 ## 11. Flyweight
 
 ### 사용 목적 & 용도
@@ -1188,6 +1189,105 @@
               circle.setY((int)(Math.random()*10));
               circle.draw();
           }
+      }
+  }
+  
+  ```
+
+---
+## 12. Proxy
+
+### 사용 목적 & 용도
+
+* 기본 객체의 리소스가 무거운 경우, 프록시 객체에서 간단한 처리를 하거나 기본 객체를 캐싱 처리함으로써 부하 감소
+* 기본 객체에 대한 수정 없이, 클라이언트에서의 사용과 기본 객체 사이에 일련의 로직을 프록시 객체를 통해 넣을 수 있음
+* 기본 객체와 요청 사이에 있기 때문에 보안성 증대
+
+### 프록시 패턴 종류
+
+* 가상 프록시
+  * 꼭 필요로 하는 시점까지 객체의 생성을 연기하고, 해당 객체가 생성된 것 처럼 동작하고 싶을 때 사용하는 패턴.
+  * 리소스가 많이 요구되는 작업들이 필요할 경우만 주체 클래스를 사용하도록 구현
+* 원격 프록시
+  * 원격 객체에 대한 접근을 제어
+  * 로컬 환경에 존재하면서 원격 객체에 대한 대변자 역할을 하는 객체
+* 보호 프록시
+  * 주체 클래스에 대한 접근을 제어하기 위한 경우에 객체에 대한 접근 권한을 제어
+  * 객체마다 접근 권한을 다르게 하고 싶은 경우에 사용하는 패턴
+
+
+### 클래스 다이어그램
+
+![Proxy](https://user-images.githubusercontent.com/95995592/150677898-65376808-beff-460c-84d2-b4c172b25907.PNG)
+
+### 구현
+* Subject
+  * Proxy와 RealSubject가 구현해야하는 인터페이스
+  * 두 객체를 동일하게 다루기 위해 존재
+  
+  ```java
+  public interface Image {
+      public void displayImage();
+  }
+  
+  ```
+  
+* Proxy
+  * RealSubject와 Client 요청 사이에 존재하는 객체
+  * Subject를 구현함으로써 클라이언트는 RealSubject 사용하는 것과 별 차이가 없어야 한다.
+  
+  ```java
+  public class Proxy_Image implements Image {
+      private String fileName;
+      private Real_Image realImage;
+
+      public Proxy_Image(String fileName) {
+          this.fileName = fileName;
+      }
+
+      @Override
+      public void displayImage() {
+          
+          if (realImage == null) {
+              realImage = new Real_Image(fileName);
+          }
+          
+          realImage.displayImage();
+      }
+  }
+  
+  ```
+  
+* RealSubject
+  * 실질적으로 요청에 대해 주된 기능을 수행하는 객체
+  * Proxy 객체는 내부적으로 이 객체를 로직에 맞게 사용한다.
+  ```java
+  public class Real_Image implements Image {
+      private String fileName;
+
+      public Real_Image(String fileName) {
+          this.fileName = fileName;
+      }
+
+      private void loadFromDisk(String fileName) {
+          System.out.println("로딩: " + fileName);
+      }
+
+      @Override
+      public void displayImage() {
+          System.out.println("보여주기: " + fileName);
+      }
+  }
+  
+* Client
+  ```java
+  public class Proxy_Pattern {
+      public static void main(String args[]) {
+          Image image1 = new Proxy_Image("test1.jpg);
+          Image image2 = new Proxy_Image("test2.jpg);
+
+          image1.displayImage();
+          image2.displayImage();
       }
   }
   
