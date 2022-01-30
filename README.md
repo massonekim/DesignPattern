@@ -12,6 +12,8 @@
 10. [Facade](#10.-Facade)
 11. [Flyweight](#11.-Flyweight)
 12. [Proxy](#12.-Proxy)
+13. [Chain-of-Responsibility](#13.-Chain-of-Responsibility)
+14. [Command](#14.-Command)
 ---
 
 ## 1. Singleton
@@ -1292,3 +1294,238 @@
   }
   
   ```
+
+---
+## 13. Chain of Responsibility
+
+### 사용 목적 & 용도
+
+* 객체를 연결리스트와 같은 사슬 방식으로 연결한 후, 요청을 수행하지 못하는 객체라면 다음 객체에 넘기며 책임을 넘기는 형태의 패턴
+
+
+### 클래스 다이어그램
+
+![ChainofResponsibility](https://user-images.githubusercontent.com/95995592/151693927-ed2c11ee-eb9f-45b5-bd4d-5ac0bda591e8.PNG)
+
+### 구현
+* Handler
+  * 요청을 처리하기 위한 수신자들이 가져야 할 인터페이스
+  
+  ```java
+  public abstract class Receiver {
+      public String name;
+      private Receiver next = null;
+      
+      public Receiver(String name) {
+          this.name = name;
+      }
+      
+      public Receiver setNext(Receiver next) {
+          this.next = next;
+          return next;
+      }
+      
+      public final void support(int number) {
+          if(resolve(number)) {
+              done(number);
+          }
+          else if(next != null) {
+              next.support(number);
+          }
+          else {
+              System.out.println("어떤 객체도 처리하지 못함");
+          }
+      }
+      
+      public abstract boolean resolve(int number);
+      public abstract void done(int number);
+  }
+  
+  ```
+  
+* Concretehandler
+  * 인터페이스 구현
+  * 각자가 요청 종류에 따라 자신이 처리할 수 있는 부분
+  
+  ```java
+  public class Even_Receiver extends Receiver {
+      
+      public Even_Receiver(String name) {
+          super(name);
+      }
+      
+      public boolean resolve(int number) {
+          if(number%2==0) {
+              return true;
+          }
+          else {
+              return false;
+          }
+      }
+      
+      public void done(int number) {
+          System.out.println(number + "-" + name + "가 해결 ");
+      }
+
+  }
+  
+  public class Odd_Receiver extends Receiver {
+      
+      public Odd_Receiver(String name) {
+          super(name);
+      }
+      
+      public boolean resolve(int number) {
+          if(number%2!=0) {
+              return true;
+          }
+          else {
+              return false;
+          }
+      }
+      
+      public void done(int number) {
+          System.out.println(number + "-" + name + "가 해결 ");
+      }
+
+  }
+  
+  ```
+  
+* Client
+  ```java
+  public class Main {
+      public static void main(String args[]) {
+          Receiver odd_receiver = new Odd_Receiver("Odd Receiver");
+          Receiver even_receiver = new Even_Receiver("Even Receiver");
+          
+          odd_receiver.setNext(even_receiver);
+          
+          for(int i=1;i<=20;i++) {
+              odd_receiver.support(i);
+          }
+      }
+  }
+  
+  ```
+  
+---
+## 14. Command
+
+### 사용 목적 & 용도
+
+* 기능을 캡슐화함으로써, 여러 기능을 실행할 수 있으나 객체에  대한 의존성이 낮음으로써 재사용성이 높은 클래스를 설계하는 패턴
+
+
+### 클래스 다이어그램
+
+![Command](https://user-images.githubusercontent.com/95995592/151694638-a0e5c27a-6bd2-41ea-815b-3f300f46591d.PNG)
+
+### 구현
+* Command
+  * 실행될 기능에 대한 인터페이스
+  * 실행될 기능을 execute 메서드로 선언
+  
+  ```java
+  public interface Command {
+      public abstract void execute();
+  }
+  
+  ```
+  
+* ConcreteCommand
+  * 인터페이스 구현
+    
+  ```java
+  
+  public class LampOnCommand implements Command {
+      
+      private Lamp theLamp;
+      
+      public LampOnCommand(Lamp theLamp) {
+          this.theLamp = theLamp;
+      }
+      
+      public void execute() {
+          theLamp.turnOn();
+      }
+  }
+  
+  public class AlramStartCommand implements Command {
+      
+      private Alarm theAlarm;
+      
+      public AlramStartCommand(Alarm theAlarm) {
+          this.theAlarm = theAlarm;
+      }
+      
+      public void execute() {
+          theAlarm.start();
+      }
+  }
+  
+  ```
+  
+* Invoker
+  * 기능의 실행을 요청하는 호출자 클래스
+  
+  ```java
+  public class Button {
+      private Command theCommand;
+      
+      public Button(Command theCommand) {
+          setCommand(theCommand);
+      }
+      
+      public void setCommand(Command newCommand) {
+          this.theCommand = newCommand;
+      }
+      
+      public void  pressed() {
+          theCommand.execute();
+      }
+  }
+  
+  ```
+* Receiver
+  * ConcreteCommand에서 execute메서드를 구현할 때 필요한 클래스
+  * 즉, ConcreteCommand 기능을 실행하기 위해 사용하는 수신자 
+  
+  ```java
+  public class Lamp {
+      
+      public void turnOn() {
+          System.out.println("Lamp On");
+      }
+  }
+  
+  public class Alarm {
+      
+      public void start() {
+          System.out.println("Alarming");
+      }
+  }
+  
+  ```
+
+* Client
+  ```java
+  public class Client {
+      public static void main(String args[]) {
+          Lamp lamp = new Lamp();
+          Command lampOnCommand = new LampOnCommand(lamp);
+          
+          Alarm alarm = new Alarm();
+          Command alarmStartCommand = new AlarmStartCommand(alarm);
+          
+          Button lampButton = new Button(lampOnCommand);
+          lampButton.pressed();
+          
+          Button alarmButton = new Button(alarmStartCommand);
+          alarmButton.pressed();
+          alarmButton.setCommand(lampOnCommand);
+          alarmButton.pressed();
+      }
+  }
+  
+  ```  
