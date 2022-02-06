@@ -14,6 +14,7 @@
 12. [Proxy](#12.-Proxy)
 13. [Chain-of-Responsibility](#13.-Chain-of-Responsibility)
 14. [Command](#14.-Command)
+15. [Interpreter](#15.-Interpreter)
 ---
 
 ## 1. Singleton
@@ -1525,6 +1526,129 @@
           alarmButton.pressed();
           alarmButton.setCommand(lampOnCommand);
           alarmButton.pressed();
+      }
+  }
+  
+  ```  
+
+---
+## 15. Interpreter
+
+### 사용 목적 & 용도
+
+* 문법 규칙을 클래스화 한 구조로, 일련의 규칙으로 정의된 문법적 언어를 해석하는 패턴
+* 클래스를 사용하여 문법 규칙을 나타냄으로, 상속을 사용하여 변경하거나 확장이 쉽다.
+* 비슷한 구현부를 가지고 있음으로 구현하기 쉽다.
+* 모든 규칙에 대해 하나 이상의 클래스를 정의함으로서 많은 규칙을 갖고 있는 문법은 관리, 유지가 어렵다.
+
+
+### 클래스 다이어그램
+
+![Interpreter](https://user-images.githubusercontent.com/95995592/152673288-33889530-87ee-4e78-bfbc-3a6e458d5fe5.PNG)
+
+### 구현
+* Context
+  * Interpreter가 해석할 문장
+  
+* Expression
+  * Abstract Syntxt Tree의 모든 노드에서 사용할 Interpret 작업을 정의
+    
+  ```java
+  
+  public interface Expression {
+      
+      public boolean interpret(String context);
+  }
+  
+  ```
+  
+* Terminal Expression
+  * 터미널 기호와 관련된 작업을 구현
+  * 문장의 모든 터미널 기호에 인스턴스가 필요
+  * 터미널 기호 : 어떤 문장에서 의미있는 최소의 단위
+  
+  ```java
+  public class TerminalExpression implements Expression {
+      
+      private String data;
+      
+      public TerminalExpression(String data) {
+          this.data = data;
+      }
+      
+      @Override
+      public boolean interpret(String conext) {
+          if(context.contains(data)) {
+              return true;
+          }
+          return false;
+      }
+  }
+  
+  ```
+* NonTerminal Expression
+  * 하나의 클래스는 문법이 가진 모든 규칙을 필요로 한다.
+  * R1..Rn Symbol 각각에 대한 Abstarct Expression 타입의 인스턴스 변수를 유지
+  * 문법에서 Nonterminal Symbol에 대한 해석 연산을 구현한다. Interpret은 R1..Rn까지의 규칙을 나타내는 변수를 통해 재귀적 방식으로 
+  
+  ```java
+  public class AndExpression implements Expression {
+      
+      private Expression expr1 = null;
+      private Expression expr2 = null;
+      
+      public AndExpression(Expression expr1, Expression expr2) {
+          this.expr1 = expr1;
+          this.expr2 = expr2;
+      }
+      
+      @Override
+      public boolean interpret(String Conetxt) {
+          return expr1.interpret(context) && expr2.interpret(context);
+      }
+  }
+  
+  public class OrExpression implements Expression {
+      
+      private Expression expr1 = null;
+      private Expression expr2 = null;
+      
+      public OrExpression(Expression expr1, Expression expr2) {
+          this.expr1 = expr1;
+          this.expr2 = expr2;
+      }
+      
+      @Override
+      public boolean interpret(String Conetxt) {
+          return expr1.interpret(context) || expr2.interpret(context);
+      }
+  }
+  
+  ```
+
+* Client
+  * 문법이 정의하는 언어의 특정 문장을 나타내는 Abstract Syntax Tree를 정의
+  * Interpret 작업을 호출
+  ```java
+  public class Client {
+      public static Expression getMaleExpression() {
+          Expression robert = new TerminalExpression("Robert");
+          Expression john = new TerminalExpression("John");
+          return new OrExpression(robert,john);
+      }
+      
+      public static Expression getMarriedWomanExpression() {
+          Expression julie = new TerminalExpression("Julie");
+          Expression married = new TerminalExpression("Married");
+          return new AndExpression(julie,married);
+      }
+  
+      public static void main(String args[]) {
+          Expression isMale =  getMaleExpressioin();
+          Expression isMarriedWoman = getMarriedWomanExpressioin();
+          
+          System.out.println("John is male? " + isMale.interpret("John male"));
+          System.out.println("Julie is a married woman? " + isMarriedWoman.interpret("Married Julie"));
       }
   }
   
