@@ -15,6 +15,7 @@
 13. [Chain-of-Responsibility](#13.-Chain-of-Responsibility)
 14. [Command](#14.-Command)
 15. [Interpreter](#15.-Interpreter)
+16. [Iterator](#16.-Iterator)
 ---
 
 ## 1. Singleton
@@ -1653,3 +1654,140 @@
   }
   
   ```  
+
+---
+## 16. Iterator
+
+### 사용 목적 & 용도
+
+* 컬렉션 구현 방법을 노출시키지 않으면서도 그 집합체안에 들어있는 모든 항목에 접근할 수 있게 해주는 방법을 제공
+* 집합체 내에서 어떤 식으로 일이 처리되는지 몰라도 그 안에 들어있는 항목들에 대해서 반복작업을 수행 할 수 있음
+
+### 클래스 다이어그램
+
+![Iterator](https://user-images.githubusercontent.com/95995592/153745508-a28ea8d7-b0a7-4697-9b66-8fe7510c437f.PNG)
+
+### 구현
+  
+* Iterator
+  * 집합체의 요소들을 순서대로 검색하기  인터페이스를 정의
+  * 다음 요소가 존재하는지를 얻기위한 hasNext()와 다음 요소를 얻기 위한 next()를 정의
+    
+  ```java
+  
+  public interface Iterator {
+      
+      public abstract boolean hasNext();
+      public abstract Object next();
+  }
+  
+  ```
+  
+* ConcreteIterator
+  * Iterator가 정의한 인터페이스를 구현
+  
+  ```java
+  public class BookShelfIterator implements Iterator {
+      
+      private BookShelf boolShelf;
+      private int index;
+      
+      public BookShelfIterator(BookeShelf bookShelf) {
+          super();
+          this.bookShelf = bookShelf;
+      }
+      
+      @Override
+      public boolean hasNext() {
+          return index < bookShelf.getLength() ? true : false;
+      }
+      
+      @Override
+      public Object next() {
+          Book book = bookShelf.getBookAt(index);
+          index++;
+          return book
+      }
+  }
+  
+  ```
+* Aggregate
+  * Iterator 역할을 만들어내는 인터페이스를 정의
+  * 여러 요소들로 이루어져 있는 집합체
+  
+  ```java
+  public interface Aggregate {
+      
+      public abstract Iterator iterator()
+  }
+  
+  ```
+
+* ConcreteAggregate
+  * Aggregate 인터페이스를 실제로 구 현
+  * 구체적인 Iterator 역할, 즉 ConcreteIterator 역할의 인스턴스 생성
+
+  ```java
+  public class BookShelf implements Aggregate {
+      private Book[] books;
+      private int last = 0;
+      
+      public BookShelf(int maxsize) {
+          this.books = new Book[maxsize];
+      }
+      
+      public Book getBookAt(int index) {
+          return books[index];
+      }
+      
+      public void appendBook(Book book) {
+          this.books[last] = book;
+          last++;
+      }
+      
+      public int getLength() {
+          return last;
+      }
+      
+      @Override
+      public Iterator iterator() {
+          return new BookShelfIterator(this);
+      }
+  }
+  
+  public class Book {
+      private String name;
+      
+      public Book(String name) {
+          super();
+          this.name = name;
+      }
+      
+      public String getName() {
+          return name;
+      }
+  }
+  
+  ```  
+  
+* Client
+  
+  ```java
+  public class Client {
+      
+      public static void main(String[] args) {
+          BookShelf bookShelf = new BookShelf(2);
+          
+          bookShelf.appendBook(new Book("java"));
+          bookShelf.appendBook(new Book("python"));
+          
+          Iterator iterator = bookShelf.iterator();
+          
+          while(iterator.hasNext()) {
+              Book book = (Book)iterator.next();
+              System.out.println(book.getName());
+          }
+      }
+  }
+  
+  ```
