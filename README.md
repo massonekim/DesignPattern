@@ -16,6 +16,7 @@
 14. [Command](#14.-Command)
 15. [Interpreter](#15.-Interpreter)
 16. [Iterator](#16.-Iterator)
+17. [Observer](#17.-Observer)
 ---
 
 ## 1. Singleton
@@ -1787,6 +1788,156 @@
               Book book = (Book)iterator.next();
               System.out.println(book.getName());
           }
+      }
+  }
+  
+  ```
+  
+---
+## 17. Observer
+
+### 사용 목적 & 용도
+
+* 한 객체의 상태 변화에 따라 다른 객체의 상태도 연동되도록 일대다 객체 의존 관계를 구성하는 패턴
+* 데이터의 변경이 발생했을 경우, 상대 클래스나 객체에 의존하지 않으면서 데이터 변경을 통보하고자 할 때 유용
+
+### 클래스 다이어그램
+
+![Observer](https://user-images.githubusercontent.com/95995592/155867340-35dc9686-5c73-429c-9b74-6f42a212379a.PNG)
+
+### 구현
+  
+* Observer
+  * 데이터의 변경을 통보 받는 인터페이스
+  * 즉, Subject에서는 Observer 인터페이스의 update 메서드를 호출함으로써, ConcreteSubject의 데이터 변경을 ConcreteObserver에게 통보
+    
+  ```java
+  
+  public interface Observer {
+      
+      public void update(float temp, float humidity, float pressure);
+  }
+  
+  ```
+  
+* Subject
+  * ConcreteObserver 객체를 관리하는 요소
+  * Oberser 인터페이스를 참조해서 ConcreteObserver를 관리하므로, ConcreteObserver의 변화에 독립적일 수 있다.
+  
+  ```java
+  public interface Subject {
+      
+      public void registerObserver(Observer o);
+      public void removeObserver(Observer o);
+      public void notifyObservers();
+  }
+  
+  ```
+* ConcreteSubject
+  * 변경 관리 대상이 되는 데이터가 있는 클래스 (통보하는 클래스)
+  * 데이터 변경을 위한 메서드인 setState가 있다.
+  * setState 메서드에서는 자신의 데이터인 subjectState를 변경하고, Subject의 notifyObservers 메서드를 호출해서 ConcreteObserver객체에 변경을 통보
+  
+  ```java
+  public class WeatherData implements Subject {
+      
+      private ArrayList<Observer> observers;
+      private float temperature;
+      private float humidity;
+      private float pressure;
+      
+      public WeatherData() {
+          this.observers = new ArrayList<>();
+      }
+      
+      @Override
+      public void registerObserver(Observer o) {
+          observers.add(o);
+      }
+      
+      @Override
+      public void remoceObserver(Observer o) {
+          int i = observer.indexOf(o);
+          if(i>=0) {
+            observers.remove(i);
+          }
+      }
+      
+      @Override
+      public void notifyObservers() {
+          for(Observer o : observers) {
+              o.update(temperature,humidify,pressure);
+          }
+      }
+      
+      public void measurementsChanged() {
+          notifyObservers();
+      }
+      
+      public void setMeasurements(float temperature, float humidity, float pressure) {
+          this.temperature = temperature;
+          this.humidity = humidity;
+          this.pressure = preessure;
+          measurementsChanged();
+      }
+      
+  }
+  
+  ```
+
+* ConcreteObserver
+  * ConcreteSubject의 변경을 통보받는 클래스
+  * Observer 인터페이스의 update메서드를 구현함으로써 변경을 통보받는다.
+  * 변경된 데이터는 ConcreteSubject의 getState 메서드를 호출함으로써 변경을 조회한다.
+
+  ```java
+  public interface DisplayElement {
+      public void dispaly();
+  }
+  
+  public class CurrentConditionDisplay implements Observer, DisplayElement {
+      private int id;
+      private float temperature;
+      private float humidity;
+      private Subject weatherData;
+      
+      public CurrentConditioniDisplay(Subject weatherData, int id) {
+          this.id = id;
+          this.weatherData = weatherData;
+          weaterData.registerObserver(this);
+      }
+      
+      @Override
+      public void update(float temp, float humidity, float pressure)  {
+          this.temperature = temp;
+          this.humidity = humidity;
+          display();
+      }
+      
+      @Override
+      public void display()  {
+          System.out.println("장비 ID : " + id  + ", 현재 기온: " + temperature  + "도, 습도 : " +  humidity + "%");
+      }
+      
+  }
+  
+  
+  ```  
+  
+* Client
+  
+  ```java
+  public class Client {
+      
+      public static void main(String[] args) {
+          WeatherData weather = new WeatherData();
+          CurrentConditionDisplay current1 = new CurrentConditionDisplay(weather,1);
+          CurrentConditionDisplay current2 = new CurrentConditionDisplay(weather,2);
+          CurrentConditionDisplay current3 = new CurrentConditionDisplay(weather,3);
+          
+          weather.setMeasurements(30,65,30.4f);
+          weather.setMeasurements(29,64,30.5f);
+          weather.setMeasurements(30,64,30.6f);
       }
   }
   
