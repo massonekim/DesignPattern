@@ -17,6 +17,7 @@
 15. [Interpreter](#15.-Interpreter)
 16. [Iterator](#16.-Iterator)
 17. [Observer](#17.-Observer)
+18. [Template Method](#18.-Templete-Method)
 ---
 
 ## 1. Singleton
@@ -1942,3 +1943,90 @@
   }
   
   ```
+  
+---
+## 18. Template Method
+
+### 사용 목적 & 용도
+* 어떤 작업을 처리하는 일부분을 서브 클래스로 캡슐화해 전체 일을 수행하는 구조는 바꾸지 않으면서 특정 단계에서 수행하는 내역을 바꾸는 패턴
+* 즉, 전체적으로는 동일하면서 부분적으로는 다른 구문으로 구성된 메서드의 코드 중복을 최소화
+* 다른 관점에서 보면 동일한 기능을 상위 클래스에서 정의하면서 확장, 변화가 필요한 부분만 서브클래스에서 구현
+
+
+### 클래스 다이어그램
+
+![TemplateMethod](https://user-images.githubusercontent.com/95995592/155867903-3223f4cc-1906-470c-ad25-8a991ae9458d.PNG)
+
+### 구현
+  
+* AbstarctClass
+  * 템플릿 메서드를 정의하는 클래스
+  * 하위 클래스에 공통 알고리즘을 정의하고 하위 클래스에서 구현될 기능을 primitive 메서드 또는 hook 메서드로 정의하는 클래스
+    
+  ```java
+  
+  public abstract class Teacher {
+      
+      public void start_class() {
+          inside();
+          attendance();
+          teach();
+          outside();
+      }
+      
+      public void inside() {
+          System.out.println("선생님이 강의실로 들어옵니다.");
+      }
+      
+      public void attendance() {
+          System.out.println("선생님이 출석을 부릅니다.");
+      }
+      
+      public void outside() {
+          System.out.println("선생님이 강의실을 나갑니다.");
+      }
+      
+      abstract void teach();
+  }
+  
+  ```
+  
+* ConcreteClass
+  * 물려받은 primitive 메서드 또는 hook 메서드를 구현하는 클래스
+  * 상위 클래스에 구현된 템플릿 메서드의 일반적인 알고리즘에서 하위 클래스에 적합하게 primitive 메서드나 hook 메서드를 오버랑리드하는 클래스
+  
+  ```java
+  public class Korean_Teacher extends Teacher {
+      
+      @Override
+      public void teach() {
+          System.out.println("선생님이 국어를 수업합니다.");
+      }
+  }
+  
+  ```java
+  public class English_Teacher extends Teacher {
+      
+      @Override
+      public void teach() {
+          System.out.println("선생님이 영어를 수업합니다.");
+      }
+  }
+  
+  ```
+  
+* Client
+  
+  ```java
+  public class Client {
+      
+      public static void main(String[] args) {
+          Korean_Teacher kr = new Korean_Teacher();
+          English_Teacher en = new English_Teacher();
+          
+          kr.start_class();
+          en.start_class();
+      }
+  }
+  
+  ```  
